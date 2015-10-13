@@ -1,0 +1,31 @@
+[general]
+name=ExportGeopaparazzi
+description=Just another Geopaparazzi database exporter
+about=If you encountered problems with Kmzgeopapaimport and GeopaparazziTags converter, try this minimal plugin. Look for your *.gpap file in your harddisk and it will export the point layers (notes, image positions and bookmarks) in separated *.csv files, images in a new "images" folder and tracklogs in separate *.kml files, all in the same directory of the Geopaparazzi database.
+category=Vector
+version=0.1
+experimental=True
+qgisMinimumVersion=2.0
+author=Enrico Antonio Chiaradia
+email=enrico.chiaradia@yahoo.it
+icon=./images/ExportGeopaparazzi.png
+
+; end of mandatory metadata
+
+; start of optional metadata
+changelog=
+  0.1. : - none. 
+
+; tags are in comma separated value format, spaces are allowed
+tags = vector, kml, csv, geopaparazzi, converter
+
+; these metadata can be empty
+; in a future version of the web application it will
+; be probably possible to create a project on redmine
+; if they are not filled
+homepage=none
+
+; deprecated flag (applies to the whole plugin and not only to the uploaded version)
+deprecated=False
+
+tracker=False
