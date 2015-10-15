@@ -39,35 +39,18 @@ class ExportGeopaparazzi:
     # refernce to map canvas
     self.canvas = self.iface.mapCanvas()
     
-  def initGui(self):  
-    
-    # add Main Menu
-    self.mainMenu = self._addmenu(self.iface.mainWindow().menuBar(),'ExportGeopaparazzi','&ExportGeopaparazzi')
-    
-    # add Initilization Menu
-    self._addmenuitem(self.mainMenu, 'Export dataset', '&Export dataset', self.openExportDatasetGUI)
-   
-    menuBar = self.iface.mainWindow().menuBar()
-    menuBar.insertMenu(self.iface.firstRightStandardMenu().menuAction(), self.mainMenu)
-    
+  def initGui(self):
+    # Create action that will start plugin
+    self.action = QAction(QIcon(currentpath+'/images/Export dataset.png'), "&Export Dataset", self.iface.mainWindow())
+    # connect the action to the run method
+    QObject.connect(self.action, SIGNAL("activated()"), self.openExportDatasetGUI)
+    # Add toolbar button and menu item
+    self.iface.addPluginToMenu("ExportGeopaparazzi", self.action)
+
   def unload(self):
-    # Remove the plugin menu item and icon
-    self.mainMenu.deleteLater()
-      
-  def _addmenuitem(self,parent, name, text, function):
-    action = QAction(parent)
-    action.setObjectName(name)
-    action.setIcon(QIcon(currentpath+'/images/'+name+'.png'))
-    action.setText(QCoreApplication.translate('ExportGeopaparazzi', text))
-    QObject.connect(action, SIGNAL("activated()"), function)
-    parent.addAction(action)
+      # Remove the plugin menu item and icon
+      self.iface.removePluginMenu("ExportGeopaparazzi",self.action)
     
-  def _addmenu(self,parent,name,text):
-    menu = QMenu(parent)
-    menu.setObjectName(name)
-    menu.setTitle(QCoreApplication.translate('ExportGeopaparazzi', text))
-    return menu
-  
   def openExportDatasetGUI(self):
     # get the path and the filename of geopaparazzi db
     path = QFileDialog.getOpenFileName(None, "Open Geopaparazzi Database File", "", "Geopaparazzi DB (*.gpap)")
