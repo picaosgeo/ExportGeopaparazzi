@@ -95,7 +95,10 @@ def createLineSF():
 def convertToStringList(datalist):
   strList = []
   for e in datalist:
-    strList.append(str(e))
+    if isinstance(e, basestring):
+      strList.append(e.encode('utf8'))
+    else:
+      strList.append(str(e))
   
   return strList
 
