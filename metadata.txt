@@ -14,6 +14,7 @@ icon=./images/ExportGeopaparazzi.png
 
 ; start of optional metadata
 changelog=
+  0.1.2: - added encoding (thanks to picaosgeo https://github.com/picaosgeo)
   0.1.1: -  ExportGeopaparazzi menu is now under the main plugins menu.
   0.1. :  -  none. 
 
