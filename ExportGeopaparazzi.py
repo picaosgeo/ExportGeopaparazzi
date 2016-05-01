@@ -2,10 +2,12 @@
 """
 /***************************************************************************
 Name			 	 : ExportGeopaparazzi.py
-Description          : Just another Geopaparazzi database exporter
-Date                 : 12/Oct/15 
-copyright            : (C) 2015 by Enrico A. Chiaradia
-email                : enrico.chiaradia@yahoo.it 
+Description : Just another Geopaparazzi database exporter
+Date          : 12/Oct/15 
+copyright   : (C) 2015 by Enrico A. Chiaradia
+email         : enrico.chiaradia@yahoo.it 
+credits      :
+http://gis.stackexchange.com/questions/97436/how-to-open-most-recent-directory-using-pyqgis
  ***************************************************************************/
 
 /***************************************************************************
@@ -51,16 +53,28 @@ class ExportGeopaparazzi:
   def unload(self):
       # Remove the plugin menu item and icon
       self.iface.removePluginMenu("ExportGeopaparazzi",self.action)
+      
+  def lastUsedDir(self):
+    settings = QSettings( "ExportGeopaparazzi", "exp-gpap" )
+    return settings.value( "lastUsedDir", str( "" ) )
+
+  def setLastUsedDir(self,lastDir):
+    settings = QSettings( "ExportGeopaparazzi", "exp-gpap" )
+    settings.setValue( "lastUsedDir", str( lastDir ) )
     
   def openExportDatasetGUI(self):
     # get the path and the filename of geopaparazzi db
-    path = QFileDialog.getOpenFileName(None, "Open Geopaparazzi Database File", "", "Geopaparazzi DB (*.gpap)")
+    path = QFileDialog.getOpenFileName(None, "Open Geopaparazzi Database File", self.lastUsedDir(), "Geopaparazzi DB (*.gpap)")
     if path == '':
       return
       
     pathToDB = osp.dirname(path)
+    self.setLastUsedDir(pathToDB)
+    
+    print self.lastUsedDir()
+    
     DBname = osp.basename(path)
     # run export dataset function
-    ExportDataset(pathToDB, DBname)
+    ExportDataset(pathToDB, DBname,currentpath)
     # get list of layers with some metadata
     QMessageBox.information(self.canvas, "ExportGeopaparazzi", 'The export was completed successfully!')
