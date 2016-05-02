@@ -28,10 +28,10 @@ tags = vector, geopaparazzi, converter
 ; in a future version of the web application it will
 ; be probably possible to create a project on redmine
 ; if they are not filled
-homepage=none
+homepage=https://github.com/eachiaradia/ExportGeopaparazzi
 
 ; deprecated flag (applies to the whole plugin and not only to the uploaded version)
 deprecated=False
 
-tracker=False
+tracker=https://github.com/eachiaradia/ExportGeopaparazzi
 repository = https://github.com/eachiaradia/ExportGeopaparazzi
