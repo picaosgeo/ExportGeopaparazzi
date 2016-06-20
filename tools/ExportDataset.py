@@ -3,9 +3,9 @@
 /***************************************************************************
 Name			 	 : ExportDataset.py
 Description : Just another Geopaparazzi database exporter
-Date          : 12/Oct/15 
+Date          : 12/Oct/15
 copyright   : (C) 2015 by Enrico A. Chiaradia
-email         : enrico.chiaradia@yahoo.it 
+email         : enrico.chiaradia@yahoo.it
 credits       :
 http://geospatialpython.com/2015/05/geolocating-photos-in-qgis.html
 http://linfiniti.com/2012/03/a-python-layer-action-to-open-a-wikipedia-page-in-qgis/
@@ -32,7 +32,7 @@ from Table import Table
 from qgis.core import *
 from qgis.gui import *
 
-from PyQt4.QtCore import QVariant  
+from PyQt4.QtCore import QVariant
 
 def exportPointToTempVector(pointTable,layName='pointlist', fields = None):
   # create layer
@@ -59,9 +59,9 @@ def exportPointToTempVector(pointTable,layName='pointlist', fields = None):
   # update layer's extent when new features have been added
   # because change of extent in provider is not propagated to the layer
   vl.updateExtents()
-  
+
   return vl
-  
+
 def exportLineToTempVector(pointTable,layName='line', fields = None):
   # create layer
   vl = QgsVectorLayer("LineString?crs=EPSG:4326", layName, "memory")
@@ -79,7 +79,7 @@ def exportLineToTempVector(pointTable,layName='line', fields = None):
     lon = float(pointTable.getValue('lon',r))
     lat = float(pointTable.getValue('lat',r))
     pointList.append(QgsPoint(lon,lat))
-  
+
   fet = QgsFeature()
   fet.setGeometry(QgsGeometry.fromPolyline(pointList))
   #fet.setAttributes(pointTable.getRecord(r))
@@ -91,10 +91,10 @@ def exportLineToTempVector(pointTable,layName='line', fields = None):
   # update layer's extent when new features have been added
   # because change of extent in provider is not propagated to the layer
   vl.updateExtents()
-  
+
   return vl
 
-  
+
 def convertToStringList(datalist):
   strList = []
   for e in datalist:
@@ -102,12 +102,12 @@ def convertToStringList(datalist):
       strList.append(e.encode('utf8'))
     else:
       strList.append(str(e))
-  
+
   return strList
 
 def ExportDataset(pathToDB, DBname,currentPath):
   # connect to database
-  con = sqlite.connect(pathToDB+'\\'+DBname)
+  con = sqlite.connect(pathToDB+os.path.sep+DBname)
   cur = con.cursor()
   #create a table with notes
   # "_id","lon","lat","altim","ts","description","text","form","style","isdirty"
@@ -117,11 +117,11 @@ def ExportDataset(pathToDB, DBname,currentPath):
                                       QgsField("ts", QVariant.String),QgsField("description", QVariant.String), \
                                       QgsField("form", QVariant.String),QgsField("style", QVariant.String), \
                                       QgsField("isdirty", QVariant.Int)]
-                                      
+
   for note in notes:
     note = convertToStringList(note)
     notesTable.addRecordList(note)
-    
+
   vl = exportPointToTempVector(notesTable, layName='notes', fields = notesTableFields)
   vl.loadNamedStyle(currentPath+'/styles/note_symb.qml')
   # add to the TOC
@@ -133,18 +133,18 @@ def ExportDataset(pathToDB, DBname,currentPath):
   imagesTableFields = [QgsField("_id", QVariant.Int), QgsField("lon", QVariant.Double), QgsField("lat", QVariant.Double),QgsField("altim", QVariant.Double),QgsField("azim", QVariant.Double), \
                                       QgsField("imagedata_id", QVariant.Int),QgsField("ts", QVariant.String),QgsField("text", QVariant.String), \
                                       QgsField("note_id", QVariant.Int), QgsField("isdirty", QVariant.Int)]
- 
+
   for img in images:
     img = convertToStringList(img)
     imagesTable.addRecordList(img)
-    
+
   vl = exportPointToTempVector(imagesTable, layName='image positions', fields = imagesTableFields)
   vl.loadNamedStyle(currentPath+'/styles/image_symb.qml')
   # add Show Image Action
   SIact = 'from PyQt4.QtCore import QUrl; from PyQt4.QtWebKit import QWebView;  myWV = QWebView(None); '
   SIact += 'myWV.setWindowTitle('+'"'+'[% "text" %]'+'"'+'); '
   SIact += 'myWV.load(QUrl('
-  SIact += "'"+pathToDB+'\images\[% "text" %]'+"'"+")); myWV.show()"
+  SIact += "'"+pathToDB+os.path.sep+'images'+os.path.sep+'[% "text" %]'+"'"+")); myWV.show()"
   # SIact = pathToDB+'\images\[% "text" %]'
   # actions.addAction(QgsAction.OpenUrl, "Show Image",SIact)
   actions = vl.actions()
@@ -160,38 +160,38 @@ def ExportDataset(pathToDB, DBname,currentPath):
                                       QgsField("zoom", QVariant.Double),QgsField("bnorth", QVariant.Double), \
                                       QgsField("bsouth", QVariant.Double),QgsField("bwest", QVariant.Double), \
                                       QgsField("beast", QVariant.Double),QgsField("text", QVariant.String)]
- 
+
   for bkm in bookmarks:
     bkm = convertToStringList(bkm)
     bookmarksTable.addRecordList(bkm)
-    
+
   vl = exportPointToTempVector(bookmarksTable, layName='bookmarks', fields = bookmarksTableFields)
   vl.loadNamedStyle(currentPath+'/styles/bookmark_symb.qml')
   # add to the TOC
   QgsMapLayerRegistry.instance().addMapLayer(vl)
-  
+
   #create a new folder with images inside
-  if not os.path.isdir(pathToDB+'\\'+'images'):
-    os.makedirs(pathToDB+'\\'+'images')
-  
+  if not os.path.isdir(pathToDB+os.path.sep+'images'):
+    os.makedirs(pathToDB+os.path.sep+'images')
+
   # get the list of images
   imgIDs = imagesTable.getColumn("_id")
   imgNames = imagesTable.getColumn("text")
-  
+
   # loop in the list and get BLOB
   i = 0
   for imgID in imgIDs:
     imgsData = cur.execute("SELECT * FROM imagedata WHERE _id = " + str(imgID))
     imgName = imgNames[i]
     #print imgID, imgName
-    
+
     for imgData in imgsData:
-      with open(pathToDB+'\\'+'images'+ '\\' + imgName, "wb") as output_file:
+      with open(pathToDB+os.path.sep+'images'+ os.path.sep + imgName, "wb") as output_file:
         output_file.write(imgData[1])
     i +=1
 
   #create a table with logs
-  gpslogs = cur.execute("SELECT * FROM gpslogs") 
+  gpslogs = cur.execute("SELECT * FROM gpslogs")
   gpslogsTable = Table(["_id","startts","endts","lengthm","isdirty","text"])
   gpslogsTableFields = [QgsField("_id", QVariant.Int), QgsField("startts", QVariant.Double), QgsField("endts", QVariant.Double), \
                                       QgsField("lengthm", QVariant.Double),QgsField("isdirty", QVariant.Int),QgsField("text", QVariant.String)]
@@ -199,7 +199,7 @@ def ExportDataset(pathToDB, DBname,currentPath):
   for l in gpslogs:
     l = convertToStringList(l)
     gpslogsTable.addRecordList(l)
-  
+
   # create layer
   vl = QgsVectorLayer("LineString?crs=EPSG:4326", 'tracklogs', "memory")
   pr = vl.dataProvider()
@@ -208,7 +208,7 @@ def ExportDataset(pathToDB, DBname,currentPath):
   vl.startEditing()
   # add fields
   pr.addAttributes(gpslogsTableFields)
-  
+
   #create a line for each logs
   for r in range(0,gpslogsTable.getNumOfRec()):
     logID = str(gpslogsTable.getValue('_id',r))
@@ -216,11 +216,11 @@ def ExportDataset(pathToDB, DBname,currentPath):
     #print logID, logname
     gpslogData  = cur.execute("SELECT * FROM gpslogsdata WHERE logid = " + logID + " ORDER BY _id")
     gpslogTable = Table(["_id","lon","lat","altim","ts","logid"])
-    
+
     for gpslogd in gpslogData:
       gpslogd = convertToStringList(gpslogd)
       gpslogTable.addRecordList(gpslogd)
-    
+
     # add a features
     pointList = []
     for g in range(0,gpslogTable.getNumOfRec()):
@@ -228,7 +228,7 @@ def ExportDataset(pathToDB, DBname,currentPath):
       lon = float(gpslogTable.getValue('lon',g))
       lat = float(gpslogTable.getValue('lat',g))
       pointList.append(QgsPoint(lon,lat))
-    
+
     fet = QgsFeature()
     fet.setGeometry(QgsGeometry.fromPolyline(pointList))
     fet.setAttributes(gpslogsTable.getRecord(r))
@@ -243,7 +243,7 @@ def ExportDataset(pathToDB, DBname,currentPath):
     vl.loadNamedStyle(currentPath+'/styles/tracklog_symb.qml')
     # add to the TOC
     QgsMapLayerRegistry.instance().addMapLayer(vl)
-    
+
   #close connection
   cur.close()
   con.close()
