@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/python
 """
 /***************************************************************************
@@ -141,10 +142,11 @@ def ExportDataset(pathToDB, DBname,currentPath):
   vl = exportPointToTempVector(imagesTable, layName='image positions', fields = imagesTableFields)
   vl.loadNamedStyle(currentPath+'/styles/image_symb.qml')
   # add Show Image Action
-  SIact = 'from PyQt4.QtCore import QUrl; from PyQt4.QtWebKit import QWebView;  myWV = QWebView(None); '
+  SIact = '# -*- coding: utf-8 -*-' + '\n'
+  SIact += ur'from PyQt4.QtCore import QUrl; from PyQt4.QtWebKit import QWebView;  myWV = QWebView(None); '
   SIact += 'myWV.setWindowTitle('+'"'+'[% "text" %]'+'"'+'); '
   SIact += 'myWV.load(QUrl('
-  SIact += "'"+pathToDB+os.path.sep+'images'+os.path.sep+'[% "text" %]'+"'"+")); myWV.show()"
+  SIact += "ur'"+pathToDB+os.path.sep+'images'+os.path.sep+'[% "text" %]'+"'"+")); myWV.show()"
   # SIact = pathToDB+'\images\[% "text" %]'
   # actions.addAction(QgsAction.OpenUrl, "Show Image",SIact)
   actions = vl.actions()
