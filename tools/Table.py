@@ -16,71 +16,49 @@ email                : enrico.chiaradia@yahoo.it
  *                                                                         *
  ***************************************************************************/
 """
-import csv
 
 class Table: 
-  def __init__(self,fldName):
-    self.lod = [] # "list of dicts"
-    self.fldName = fldName # a list of field Name
-    
-  def addRecord(self, newRecord):
-    self.lod.append(newRecord)
+  def __init__(self,fldNames):
+    self.lod = [] # "list of lists"
+    self.fldNames = fldNames # a list of field Name
+    # add as many columns as fldNames
+    for f in self.fldNames:
+      self.lod.append([])
     
   def addRecordList(self, newRecord):
-    recDict = {}
+    #print 'IN addRecordList:'
+    #print newRecord
+    for i in range(0,len(self.fldNames)):
+      #print newRecord[i]
+      self.lod[i].append(newRecord[i])
+      
+    #print self.lod
+    
+  def addRecordDict(self, newRecord):
+    #print 'IN addRecordDict:'
+    #print newRecord
     i = 0
-    for fld in self.fldName:
-      recDict[fld] = newRecord[i]
+    for fld in self.fldNames:
+      self.lod[i].append(newRecord[fld])
       i+=1
     
-    self.addRecord(recDict)
-
-  def populateLod(self, csv_fp, sep =','):
-    with open(csv_fp, 'r') as f:  # Just use 'w' mode in 3.x
-      rdr = csv.DictReader(f, self.fldName,delimiter=sep)
-      self.lod.extend(rdr)
-
   def saveLod(self, csv_fp):
-    with open(csv_fp, 'wb') as f:  # Just use 'w' mode in 3.x
-      w = csv.DictWriter(f, self.fldName)
-      w.writeheader()
-      w.writerows(self.lod)
-      
-  def copyf(self, key, valuelist):
-    lod = [dictio for dictio in self.lod if dictio[key] in valuelist]
-    tableLod = Table(self.fldName)
-    tableLod.lod.extend(lod)
-    return tableLod
-    
-  def getColumn(self,key):
-    return [x[key] for x in self.lod]
-    
+    pass    
+  
   def getNumOfRec(self):
-    return len(self.lod)
+    return len(self.lod[0])
     
-  def getNumOfFields(self):
-    return len(self.fldName)
-
-# from the web ...
-  def queryLod(self, filter=None, sort_keys=None):
-    if filter is not None:
-      lod = (r for r in self.lod if filter(r))
-    if sort_keys is not None:
-      lod = sorted(lod, key=lambda r:[r[k] for k in sort_keys])
-    else:
-      lod = list(self.lod)
+  def getRecord(self,rowidx):
+    rowvals = []
+    for i in range(0,len(self.fldNames)):
+      rowvals.append(self.lod[i][rowidx])
+      
+    return rowvals
     
-    tableLod = Table(self.fldName)
-    tableLod.lod.extend(lod)
-    return tableLod
-
-  def lookupLod(self,**kw):
-    for row in self.lod:
-        for k,v in kw.iteritems():
-            if row[k] != str(v): break
-        else:
-            return row
-    return None
+  def getColumn(self,colname):
+    colidx = self.fldNames.index(colname)
+    return self.lod[colidx]
     
-  def updateField(self,fieldName, recNum, newValue):
-    self.lod[recNum][fieldName] = newValue
+  def getValue(self,colname,rowidx):
+    colidx = self.fldNames.index(colname)
+    return self.lod[colidx][rowidx]
