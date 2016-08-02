@@ -100,7 +100,7 @@ def convertToStringList(datalist):
   strList = []
   for e in datalist:
     if isinstance(e, basestring):
-      strList.append(e.encode('utf8'))
+      strList.append(e)
     else:
       strList.append(str(e))
 
